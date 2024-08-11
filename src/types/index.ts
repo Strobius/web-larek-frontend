@@ -9,7 +9,9 @@ export interface IProduct  {
 
 export interface IData {
     productCatalog: IProduct[];
-
+    basket: IProduct[];
+    Contacts: IContactForm;
+    Adress:  IAdress;
 }
 
 export interface IContactForm {
@@ -27,11 +29,15 @@ export interface IPage {
 }
 
 export interface IBascket { 
-    numberPosition: number;
+    Position: number;
     totalPrice: number;
-    selected: HTMLElement[];
+    products: HTMLElement[];
 }
 
 export interface ISuccess {
     totalPrice: number;
+}
+
+export interface IWLApi {
+    ProductCatalog: () => Promise<IProduct[]>;
 }

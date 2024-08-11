@@ -49,7 +49,7 @@ yarn build
 - `Model`: Управляет данными, логикой и правилами работы с данными.
 - `View`: Отвечает за отображение данных и получение пользовательского ввода. 
 - `Presenter`: Посредник между Model и View. Обрабатывает пользовательский ввод, запрашивает данные у Model и обновляет View.
-Использование MVP позволяет упростить тестирование и поддержку кода, а также делает код более модульным и расширяемым.
+- Использование MVP позволяет упростить тестирование и поддержку кода, а также делает код более модульным и расширяемым.
 
 # Базовые классы 
 
@@ -65,11 +65,15 @@ yarn build
 
 Базовый компонент пользовательского интерфеса. Его функционал заключается в отрисовке пользовательских элементов и предоставление возможности работы с DOM дочерним компонентам.
 
+### 4. Класс Model 
+
+Класс отвечает за сообщение о изменении модели данных.
+
 # Общие классы 
 
 ### 1. Класс Data 
 
-Отвечает за хранение данных. Управляет хранением и предоставлением данных для других компонентов системы.
+Отвечает за хранение данных. Управляет хранением и предоставлением данных для других компонентов системы. Наследуется от Model.
 
 ### 2. Класс WLApi
 
@@ -108,3 +112,49 @@ yarn build
 ### 8. Класс Success
 
 Компонент, который отображает сообщение об успешном завершении покупки. Наследуется от Component.
+
+## Типы данных 
+```
+export interface IProduct  {
+    name: string;
+    id: string;
+    description: string;
+    price: number;
+    imageUrl: string;
+    category: string;
+};
+
+export interface IData {
+    productCatalog: IProduct[];
+    basket: IProduct[];
+    Contacts: IContactForm;
+    Adress:  IAdress;
+}
+
+export interface IContactForm {
+    email: string;
+    phone: string;
+}
+
+export interface IAdress {
+    address: string;
+}
+
+export interface IPage {
+    catalog: HTMLElement[];
+    locked: boolean;
+}
+
+export interface IBascket { 
+    numberPosition: number;
+    totalPrice: number;
+    selected: HTMLElement[];
+}
+
+export interface ISuccess {
+    totalPrice: number;
+}
+
+export interface IWLApi {
+    ProductCatalog: () => Promise<IProduct[]>;
+}
