@@ -31,3 +31,7 @@ export interface IBascket {
     totalPrice: number;
     selected: HTMLElement[];
 }
+
+export interface ISuccess {
+    totalPrice: number;
+}
