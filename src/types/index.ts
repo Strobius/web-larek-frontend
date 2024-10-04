@@ -12,6 +12,7 @@ export interface IData {
     basket: IProduct[];
     Contacts: IContactForm;
     Adress:  IAdress;
+    preview: string | null;
 }
 
 export interface IContactForm {
@@ -26,18 +27,34 @@ export interface IAdress {
 export interface IPage {
     catalog: HTMLElement[];
     locked: boolean;
+    counter: number;
 }
 
 export interface IBascket { 
-    Position: number;
+    selected: string[];
     totalPrice: number;
-    products: HTMLElement[];
+    items: HTMLElement[];
 }
 
 export interface ISuccess {
     totalPrice: number;
 }
 
+export interface IOrder {
+	email: string;
+	phone: string;
+	address: string;
+	items: string[];
+	total: number;
+}
+
+export interface IOrderResult {
+	id: string;
+	total: number;
+}
+
 export interface IWLApi {
     ProductCatalog: () => Promise<IProduct[]>;
+    getProduct: (id: string) => Promise<IProduct>;
+	createOrder: (order: IOrder) => Promise<IOrderResult>;
 }
