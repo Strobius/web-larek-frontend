@@ -120,15 +120,18 @@ yarn build
 - `order` - данные заказа;
 - `preview` - октрытый товар;
 - `formerrors` - данные валидации форм;
+- `productCatalog` - данные о каталоге товаров
 
 методы:
 - `catalog` - каталог товаров
-- `getTotalResult` - получение итоговой суммы заказов
+- `getTotal` - получение итоговой суммы заказов
 - `removeFromBasket` и `addToBasket` - удаление и добавление товаров в корзину
 - `clearBasket` - очистка корзины 
 - `updateBasket` - обновление корзины 
 - `validateAddress` - валидация формы адреса 
 - `validateContacts` - валидация формы котактов 
+- `setAddress` и `setContactsForm` - меняет содержимое полей адреса, почты и телефона на полученое
+- `isInBasket` - проверяет наличие товара в корзине 
 
 
 ### 2. Класс WLApi
@@ -142,7 +145,6 @@ yarn build
 
 методы: 
 - `getProductCatalog` - возвращает массив продуктов с сервера 
-- `getProduct` - возвращает продукт с сервера по переданному id, 
 - `createOrder` - отправляет переданный заказ на сервер и возвращает результат
 
 
@@ -161,6 +163,7 @@ yarn build
 - `_category` - категория товара 
 - `_button` - кнопка карточки
 - `_description` - описание  карточки
+- `_index` - индекс карточки
 
 Сеттеры:
 
@@ -188,6 +191,7 @@ yarn build
 
 методы: 
 - `render` - рендерит компонент формы, используя переданное состояние
+- `onInputChange` - отслеживает изменения полей ввода
 
 ### 3. Класс Address
 
@@ -196,15 +200,12 @@ yarn build
 `constructor(container: HTMLFormElement, events: IEvents)` - принимает контейнер с формой и брокер событий
 
 Поля: 
-- `onlinePayment` - кнопка оплаты онлайн
-- `cashPayment` - кнопка оплаты при получении
+- `_buttons` - кнопки оплаты онлайн и при получении
 - `addressInput` - инпут ввода адреса
 
 сеттеры: 
 - `setAddress` - устанавливает адрес доставки;
-
-Методы: 
-- `paymentButtons` - управляет состоянием кнопки оплаты; 
+- `payment` - управляет состоянием кнопки оплаты; 
 
 ### 4. Класс Contacts
 
@@ -213,8 +214,8 @@ yarn build
 `constructor(container: HTMLFormElement, events: IEvents)` - принимает контейнер с формой и брокер событий
 
 поля: 
-- `emailInput` - инпут ввода почты
-- `phoneInput` - инпут ввода телефона 
+- `_email` - инпут ввода почты
+- `_phone` - инпут ввода телефона 
 
 Сеттеры: 
 - `phone` - устанавливает номер телефона; 
@@ -247,11 +248,12 @@ yarn build
 поля: 
 - `_catalog` - каталог товаров, 
 - `_counter` - счетчик товаров, 
-- `basket` - корзина. 
+- `_basket` - корзина.
 
 сеттеры: 
 - `counter` - меняет число на счетчике, 
-- `catalog` - меняет содержимое каталога.
+- `catalog` - меняет содержимое каталога,
+- `locked` - сеттер для блокировки или разблокировки страницы
  
 ### 7. Класс Basket
 
@@ -260,9 +262,8 @@ yarn build
 `constructor(events: IEvents)` - принимает брокер событий
 
 Поля: 
-- `template` - элемент шаблона корзины, 
 - `_list` - элемент содержимого корзины (карточек товаров), 
-- `_total` - элемент суммы товаров в корзине,
+- `_price` - элемент суммы товаров в корзине,
 - `_button` - элемент кнопки оформления заказа в корзине
 
 Сеттеры:
@@ -276,10 +277,11 @@ yarn build
 `constructor (container: HTMLElement, events: IEvents)` - принимает DOM-элемент окна на базе шаблона и брокер событий
 
 Поля: 
-- `total` - элемент с суммой заказа 
+- `_total` - элемент с суммой заказа 
+- `_close` - элемент кнопки закрытия окна
 
-Методы: 
-- `totalPrice` - устанавливает значение общей суммы заказа
+Сеттеры: 
+- `total` - устанавливает значение общей суммы заказа
 
 ## Интерфейсы
 ```
@@ -288,8 +290,11 @@ export interface IProduct  {
     id: string;
     description: string;
     price: number;
-    imageUrl: string;
+    image: string;
     category: string;
+    title: string;
+    index: number;
+    buttonText?: string;
 };
 
 export interface IData {
@@ -307,6 +312,7 @@ export interface IContactForm {
 
 export interface IAdress {
     address: string;
+    payment: string;
 }
 
 export interface IPage {
@@ -315,22 +321,23 @@ export interface IPage {
     counter: number;
 }
 
-export interface IBascket { 
+export interface IBasket { 
     selected: string[];
-    totalPrice: number;
-    selected: HTMLElement[];
+    total: number;
+    items: HTMLElement[];
 }
 
 export interface ISuccess {
-    totalPrice: number;
+    total: number | null;
 }
 
-export interface IOrder {
-	email: string;
-	phone: string;
-	address: string;
+export interface ISuccessActions {
+	onClick: () => void;
+}
+
+export interface IOrder extends IAdress, IContactForm {
+    total: number;
 	items: string[];
-	total: number;
 }
 
 export interface IOrderResult {
@@ -340,8 +347,7 @@ export interface IOrderResult {
 
 export interface IWLApi {
     ProductCatalog: () => Promise<IProduct[]>;
-    getProduct: (id: string) => Promise<IProduct>;
 	createOrder: (order: IOrder) => Promise<IOrderResult>;
 }
 
-
+export type FormErrors = Partial<Record<keyof IOrder, string>>;

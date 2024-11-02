@@ -3,8 +3,11 @@ export interface IProduct  {
     id: string;
     description: string;
     price: number;
-    imageUrl: string;
+    image: string;
     category: string;
+    title: string;
+    index: number;
+    buttonText?: string;
 };
 
 export interface IData {
@@ -22,6 +25,7 @@ export interface IContactForm {
 
 export interface IAdress {
     address: string;
+    payment: string;
 }
 
 export interface IPage {
@@ -30,22 +34,23 @@ export interface IPage {
     counter: number;
 }
 
-export interface IBascket { 
+export interface IBasket { 
     selected: string[];
-    totalPrice: number;
+    total: number;
     items: HTMLElement[];
 }
 
 export interface ISuccess {
-    totalPrice: number;
+    total: number | null;
 }
 
-export interface IOrder {
-	email: string;
-	phone: string;
-	address: string;
+export interface ISuccessActions {
+	onClick: () => void;
+}
+
+export interface IOrder extends IAdress, IContactForm {
+    total: number;
 	items: string[];
-	total: number;
 }
 
 export interface IOrderResult {
@@ -55,6 +60,7 @@ export interface IOrderResult {
 
 export interface IWLApi {
     ProductCatalog: () => Promise<IProduct[]>;
-    getProduct: (id: string) => Promise<IProduct>;
 	createOrder: (order: IOrder) => Promise<IOrderResult>;
 }
+
+export type FormErrors = Partial<Record<keyof IOrder, string>>;
