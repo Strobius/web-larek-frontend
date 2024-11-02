@@ -1,5 +1,4 @@
 import './scss/styles.scss';
-
 import { WLApi } from './components/WLApi';
 import { CDN_URL, API_URL } from './utils/constants';
 import { EventEmitter } from './components/base/events';
@@ -40,6 +39,7 @@ events.onAll(({ eventName, data }) => {
 	console.log(eventName, data);
 })
 
+// Отоброжение карточек
 events.on<CatalogChangeEvent>('items:changed', () => {
 	page.catalog = data.productCatalog.map((item) => {
 		const card = new Card(cloneTemplate(cardCatalogTemplate), {
@@ -53,19 +53,21 @@ events.on('card:select', (item: IProduct) => {
 	data.setPreview(item);
 });
 
-api
-	.ProductCatalog()
+// Получение карточек с сервера
+api.ProductCatalog()
 	.then(data.setCatalog.bind(data))
 	.catch((err) => {
 		console.error(err);
 	});
 
+// Открытие корзины
 events.on('basket:open', () => {
 	modal.render({
 		content: basket.render(),
 	});
 });
 
+// Блокировка и разблокировка прокрутки страницы
 events.on('modal:open', () => {
 	page.locked = true;
 });
@@ -74,11 +76,11 @@ events.on('modal:close', () => {
 	page.locked = false;
 });
 
-
+// Открыть товар
 events.on('preview:changed', (item: IProduct) => {
 	const card = new Card(cloneTemplate(cardPreviewTemplate), {
 		onClick: () => {
-			if (data.spotProductInBasket(item)) {
+			if (data.isInBasket(item)) {
 				data.removeFromBasket(item);
 				card.buttonText = 'Добавить в корзину';
 			} else {
@@ -95,11 +97,12 @@ events.on('preview:changed', (item: IProduct) => {
 			image: item.image,
 			description: item.description,
 			price: item.price,
-			buttonText: data.spotProductInBasket(item)? 'Удалить из корзины' : 'Добавить',
+			buttonText: data.isInBasket(item)? 'Удалить из корзины' : 'Добавить',
 		})
 	});
 });
 
+// Открыть корзину
 events.on('basket:changed', () => {
 	page.counter = data.basket.length
 	basket.total = data.getTotal();
@@ -115,6 +118,7 @@ events.on('basket:changed', () => {
     });
 })
 
+// Открыть форму с адресом
 events.on('order:open', () => {
     modal.render({
         content: addressForm.render({
@@ -126,17 +130,19 @@ events.on('order:open', () => {
     });
 });
 
+// Изменения в поле с адресом 
 events.on(/^order\..*:change/, (payload: { field: keyof IAdress, value: string }) => {
     data.setAddress(payload.field, payload.value);
 });
 
+// Показ ошибок валидации поля с адресом 
 events.on('formErrors:change', (errors: Partial<IAdress>) => {
 	const {payment, address,} = errors;
 	addressForm.valid = !payment && !address;
 	addressForm.errors = Object.values({payment, address}).filter((i) => !!i).join('; ');
 });
 
-
+// Открыть форму с контактными данными 
 events.on('order:submit', () => {
     data.order.items = data.basket.map((item) => item.id);
     modal.render({
@@ -149,21 +155,25 @@ events.on('order:submit', () => {
     });
 });
 
+// Изменения полей почты и телефона
 events.on(/^contacts\..*:change/, (payload: { field: keyof IContactForm, value: string }) => {
     data.setContactsForm(payload.field, payload.value);
 });
 
+// Показ ошибок валидации формы с полями телефона и почты 
 events.on('formErrors:change', (errors: Partial<IContactForm>) => {
 	const {email, phone} = errors;
 	contactsForm.valid = !email && !phone;
 	contactsForm.errors = Object.values({phone, email}).filter((i) => !!i).join('; ');
 });
 
+// Отслеживание выбранного способа оплаты 
 events.on('payment:change', (item: HTMLButtonElement) => {
 	data.order.payment = item.name;
 	data.validateAddressForm();
 });
 
+// Отправка заказа на сервер
 events.on('contacts:submit', () => {
 	data.order.total = data.getTotal();            
 
