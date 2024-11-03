@@ -29,6 +29,12 @@ const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
 const addressForm = new Address(cloneTemplate(orderTemplate), events);
 const contactsForm = new Contacts(cloneTemplate(contactsTemplate), events);
+const success = new Success(cloneTemplate(successTemplate), {
+    onClick: () => {
+        modal.close();
+        data.clearBasket();
+    }
+});
 
 
 
@@ -175,21 +181,17 @@ events.on('payment:change', (item: HTMLButtonElement) => {
 
 // Отправка заказа на сервер
 events.on('contacts:submit', () => {
-	data.order.total = data.getTotal();            
+    data.order.total = data.getTotal();            
 
     api.createOrder(data.order)
         .then((result) => {
-            const success = new Success(cloneTemplate(successTemplate), {
-                onClick: () => {
-                    modal.close();
-                    data.clearBasket();
-                }
-            });
+            success.total = result.total;
+
             modal.render({
                 content: success.render()
             });
-			success.total = result.total;
-            data.clearBasket()
+
+            data.clearBasket();
         })
         .catch(err => {
             console.error(err);

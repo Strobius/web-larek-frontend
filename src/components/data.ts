@@ -97,12 +97,21 @@ export class Data extends Model<IData> {
 
     validateContactForm() {
         const errors: typeof this.formErrors = {};
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phonePattern = /^\+7\s?\(?\d{3}\)?\s?\d{3}-?\d{2}-?\d{2}$/; 
+    
         if (!this.order.email) {
             errors.email = 'Необходимо указать email';
+        } else if (!emailPattern.test(this.order.email)) {
+            errors.email = 'Неверный формат email';
         }
+    
         if (!this.order.phone) {
             errors.phone = 'Необходимо указать телефон';
+        } else if (!phonePattern.test(this.order.phone)) {
+            errors.phone = 'Неверный формат телефона';
         }
+    
         this.formErrors = errors;
         this.events.emit('formErrors:change', this.formErrors);
         return Object.keys(errors).length === 0;

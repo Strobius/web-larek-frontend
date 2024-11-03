@@ -67,8 +67,8 @@ export class Card extends Component<IProduct> {
 	}
 
     set index(value: string) {
-	    this._index.textContent = value;
-	}
+        this.setText(this._index, value);
+    }
 
     get price(): string {
 	    return this._price.textContent || '';
